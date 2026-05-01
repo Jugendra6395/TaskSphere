@@ -46,7 +46,10 @@ export default function ProjectDetail() {
         return (
             <div className="p-6 text-center text-zinc-900 dark:text-zinc-200">
                 <p className="text-3xl md:text-5xl mt-40 mb-10">Project not found</p>
-                <button onClick={() => navigate('/projects')} className="mt-4 px-4 py-2 rounded bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600" >
+                <button
+                    onClick={() => navigate('/projects')}
+                    className="mt-4 px-4 py-2 rounded bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                >
                     Back to Projects
                 </button>
             </div>
@@ -68,7 +71,10 @@ export default function ProjectDetail() {
                         </span>
                     </div>
                 </div>
-                <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white" >
+                <button
+                    onClick={() => setShowCreateTask(true)}
+                    className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                >
                     <PlusIcon className="size-4" />
                     New Task
                 </button>
@@ -101,7 +107,14 @@ export default function ProjectDetail() {
                         { key: "analytics", label: "Analytics", icon: BarChart3Icon },
                         { key: "settings", label: "Settings", icon: SettingsIcon },
                     ].map((tabItem) => (
-                        <button key={tabItem.key} onClick={() => { setActiveTab(tabItem.key); setSearchParams({ id: id, tab: tabItem.key }) }} className={`flex items-center gap-2 px-4 py-2 text-sm transition-all ${activeTab === tabItem.key ? "bg-zinc-100 dark:bg-zinc-800/80" : "hover:bg-zinc-50 dark:hover:bg-zinc-700"}`} >
+                        <button
+                            key={tabItem.key}
+                            onClick={() => { setActiveTab(tabItem.key); setSearchParams({ id: id, tab: tabItem.key }) }}
+                            className={`flex items-center gap-2 px-4 py-2 text-sm transition-all ${activeTab === tabItem.key
+                                ? "bg-zinc-100 dark:bg-zinc-800/80"
+                                : "hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                                }`}
+                        >
                             <tabItem.icon className="size-3.5" />
                             {tabItem.label}
                         </button>

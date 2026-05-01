@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { format, isSameDay, isBefore, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths } from "date-fns";
 import { CalendarIcon, Clock, User, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -34,7 +34,7 @@ const ProjectCalendar = ({ tasks }) => {
         start: startOfMonth(currentMonth),
         end: endOfMonth(currentMonth),
     });
-
+    
 
     const handleMonthChange = (direction) => {
         setCurrentMonth((prev) => (direction === "next" ? addMonths(prev, 1) : subMonths(prev, 1)));
@@ -47,7 +47,8 @@ const ProjectCalendar = ({ tasks }) => {
                 <div className="not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-zinc-900 dark:text-white text-md flex gap-2 items-center max-sm:hidden">
-                            <CalendarIcon className="size-5" /> Task Calendar
+                            <CalendarIcon className="size-5" />
+                            Task Calendar
                         </h2>
                         <div className="flex gap-2 items-center">
                             <button onClick={() => handleMonthChange("prev")}>

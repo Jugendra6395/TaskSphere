@@ -1,9 +1,8 @@
 import { SearchIcon, PanelLeft } from 'lucide-react'
+import { UserButton } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleTheme } from '../features/themeSlice'
 import { MoonIcon, SunIcon } from 'lucide-react'
-import { assets } from '../assets/assets'
-import { UserButton } from '@clerk/react'
 
 const Navbar = ({ setIsSidebarOpen }) => {
 
@@ -44,7 +43,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
                     </button>
 
                     {/* User Button */}
-                    <UserButton afterSignOutUrl="/" />
+                    <UserButton />
                 </div>
             </div>
         </div>

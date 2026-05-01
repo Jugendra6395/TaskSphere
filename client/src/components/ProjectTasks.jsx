@@ -1,10 +1,12 @@
-import { format } from "date-fns";
+import api from "../configs/api";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { useAuth } from "@clerk/clerk-react";
+import { useDispatch } from "react-redux";
 import { deleteTask, updateTask } from "../features/workspaceSlice";
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const typeIcons = {
     BUG: { icon: Bug, color: "text-red-600 dark:text-red-400" },
@@ -22,6 +24,7 @@ const priorityTexts = {
 
 const ProjectTasks = ({ tasks }) => {
     const dispatch = useDispatch();
+    const { getToken } = useAuth();
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
 
@@ -57,9 +60,9 @@ const ProjectTasks = ({ tasks }) => {
     const handleStatusChange = async (taskId, newStatus) => {
         try {
             toast.loading("Updating status...");
+            const token = await getToken();
 
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await api.put(`/api/tasks/${taskId}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
 
             let updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
             updatedTask.status = newStatus;
@@ -78,11 +81,10 @@ const ProjectTasks = ({ tasks }) => {
             const confirm = window.confirm("Are you sure you want to delete the selected tasks?");
             if (!confirm) return;
 
+            const token = await getToken();
             toast.loading("Deleting tasks...");
 
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
+            await api.post("/api/tasks/delete", { tasksIds: selectedTasks }, { headers: { Authorization: `Bearer ${token}` } });
             dispatch(deleteTask(selectedTasks));
 
             toast.dismissAll();
@@ -125,7 +127,12 @@ const ProjectTasks = ({ tasks }) => {
                         ],
                     };
                     return (
-                        <select key={name} name={name} onChange={handleFilterChange} className=" border not-dark:bg-white border-zinc-300 dark:border-zinc-800 outline-none px-3 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200" >
+                        <select
+                            key={name}
+                            name={name}
+                            onChange={handleFilterChange}
+                            className=" border not-dark:bg-white border-zinc-300 dark:border-zinc-800 outline-none px-3 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200"
+                        >
                             {options[name].map((opt, idx) => (
                                 <option key={idx} value={opt.value}>{opt.label}</option>
                             ))}
@@ -135,7 +142,11 @@ const ProjectTasks = ({ tasks }) => {
 
                 {/* Reset filters */}
                 {(filters.status || filters.type || filters.priority || filters.assignee) && (
-                    <button type="button" onClick={() => setFilters({ status: "", type: "", priority: "", assignee: "" })} className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-purple-400 to-purple-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors" >
+                    <button
+                        type="button"
+                        onClick={() => setFilters({ status: "", type: "", priority: "", assignee: "" })}
+                        className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-purple-400 to-purple-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors"
+                    >
                         <XIcon className="size-3" /> Reset
                     </button>
                 )}
@@ -156,7 +167,12 @@ const ProjectTasks = ({ tasks }) => {
                             <thead className="text-xs uppercase dark:bg-zinc-800/70 text-zinc-500 dark:text-zinc-400 ">
                                 <tr>
                                     <th className="pl-2 pr-1">
-                                        <input onChange={() => selectedTasks.length > 1 ? setSelectedTasks([]) : setSelectedTasks(tasks.map((t) => t.id))} checked={selectedTasks.length === tasks.length} type="checkbox" className="size-3 accent-zinc-600 dark:accent-zinc-500" />
+                                        <input
+                                            onChange={() => selectedTasks.length > 1 ? setSelectedTasks([]) : setSelectedTasks(tasks.map((t) => t.id))}
+                                            checked={selectedTasks.length === tasks.length}
+                                            type="checkbox"
+                                            className="size-3 accent-zinc-600 dark:accent-zinc-500"
+                                        />
                                     </th>
                                     <th className="px-4 pl-0 py-3">Title</th>
                                     <th className="px-4 py-3">Type</th>
@@ -173,9 +189,22 @@ const ProjectTasks = ({ tasks }) => {
                                         const { background, prioritycolor } = priorityTexts[task.priority] || {};
 
                                         return (
-                                            <tr key={task.id} onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)} className=" border-t border-zinc-300 dark:border-zinc-800 group hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer" >
+                                            <tr
+                                                key={task.id}
+                                                onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)}
+                                                className=" border-t border-zinc-300 dark:border-zinc-800 group hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer"
+                                            >
                                                 <td onClick={e => e.stopPropagation()} className="pl-2 pr-1">
-                                                    <input type="checkbox" className="size-3 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task.id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id)) : setSelectedTasks((prev) => [...prev, task.id])} checked={selectedTasks.includes(task.id)} />
+                                                    <input
+                                                        type="checkbox"
+                                                        className="size-3 accent-zinc-600 dark:accent-zinc-500"
+                                                        onChange={() =>
+                                                            selectedTasks.includes(task.id)
+                                                                ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id))
+                                                                : setSelectedTasks((prev) => [...prev, task.id])
+                                                        }
+                                                        checked={selectedTasks.includes(task.id)}
+                                                    />
                                                 </td>
                                                 <td className="px-4 pl-0 py-2">{task.title}</td>
                                                 <td className="px-4 py-2">
@@ -190,7 +219,12 @@ const ProjectTasks = ({ tasks }) => {
                                                     </span>
                                                 </td>
                                                 <td onClick={e => e.stopPropagation()} className="px-4 py-2">
-                                                    <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="group-hover:ring ring-zinc-100 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer" >
+                                                    <select
+                                                        name="status"
+                                                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                                                        value={task.status}
+                                                        className="group-hover:ring ring-zinc-100 outline-none px-2 pr-4 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200 cursor-pointer"
+                                                    >
                                                         <option value="TODO">To Do</option>
                                                         <option value="IN_PROGRESS">In Progress</option>
                                                         <option value="DONE">Done</option>
@@ -233,7 +267,16 @@ const ProjectTasks = ({ tasks }) => {
                                     <div key={task.id} className=" dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 flex flex-col gap-2">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-zinc-900 dark:text-zinc-200 text-sm font-semibold">{task.title}</h3>
-                                            <input type="checkbox" className="size-4 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task.id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id)) : setSelectedTasks((prev) => [...prev, task.id])} checked={selectedTasks.includes(task.id)} />
+                                            <input
+                                                type="checkbox"
+                                                className="size-4 accent-zinc-600 dark:accent-zinc-500"
+                                                onChange={() =>
+                                                    selectedTasks.includes(task.id)
+                                                        ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id))
+                                                        : setSelectedTasks((prev) => [...prev, task.id])
+                                                }
+                                                checked={selectedTasks.includes(task.id)}
+                                            />
                                         </div>
 
                                         <div className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
@@ -249,7 +292,12 @@ const ProjectTasks = ({ tasks }) => {
 
                                         <div>
                                             <label className="text-zinc-600 dark:text-zinc-400 text-xs">Status</label>
-                                            <select name="status" onChange={(e) => handleStatusChange(task.id, e.target.value)} value={task.status} className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200" >
+                                            <select
+                                                name="status"
+                                                onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                                                value={task.status}
+                                                className="w-full mt-1 bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 outline-none px-2 py-1 rounded text-sm text-zinc-900 dark:text-zinc-200"
+                                            >
                                                 <option value="TODO">To Do</option>
                                                 <option value="IN_PROGRESS">In Progress</option>
                                                 <option value="DONE">Done</option>
