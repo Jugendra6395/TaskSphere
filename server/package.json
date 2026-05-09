@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@clerk/express": "^1.7.26",
-    "@neondatabase/serverless": "^0.10.0",
+    "@neondatabase/serverless": "^0.10.4",
     "@prisma/adapter-neon": "^5.22.0",
     "@prisma/client": "^5.22.0",
     "cors": "^2.8.5",
